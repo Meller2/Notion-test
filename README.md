@@ -1,19 +1,47 @@
-# Notion-test
+# NOVA 3D — Vite + Three.js + GSAP
 
-> Этот README залит **Алексом** прямо из Notion через GitHub-интеграцию. Руки работают! 🐾
+Интерактивная 3D-витрина со скроллителлингом. Загружает твою `.glb` модель и вращает её по скроллу. Собрано 🐾 Алексом прямо из Notion.
 
-## Что это
+## Стек
+- **Vite** — сборка и dev-сервер
+- **Three.js** — WebGL, GLTFLoader
+- **GSAP + ScrollTrigger** — анимация по скроллу
 
-Боевая проверка связки **Notion + GitHub (MCP)**. Если ты читаешь это на GitHub — значит, Алекс умеет писать файлы, делать коммиты и наполнять репозитории. ✅
+## Запуск
 
-## Что умеет Алекс через GitHub
+```bash
+npm install
+npm run dev
+```
 
-- 📝 Создавать и редактировать файлы
-- 🔀 Делать коммиты и ветки
-- 📥 Открывать и мержить pull request'ы
-- 🐛 Заводить issues
-- 🔍 Искать по коду и репозиториям
+Открой http://localhost:5173
 
----
+## Своя 3D-модель
 
-*Made with 🐾 by Алекс · создано из Notion*
+Положи файл сюда:
+
+```
+public/models/model.glb
+```
+
+Пока файла нет — показывается заглушка. Чтобы поменять имя/путь — отредактируй `MODEL_URL` в `src/main.js`.
+
+## Сборка
+
+```bash
+npm run build
+npm run preview
+```
+
+## Структура
+
+```
+├─ index.html
+├─ vite.config.js
+├─ package.json
+├─ public/
+│  └─ models/        # сюда кладёшь model.glb
+└─ src/
+   ├─ main.js        # сцена Three.js + GSAP
+   └─ style.css
+```
