@@ -1,4 +1,3 @@
-import './style.css'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import gsap from 'gsap'
@@ -6,8 +5,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-// ↓↓↓ ПОЛОЖИ СВОЮ МОДЕЛЬ СЮДА: public/models/model.glb ↓↓↓
-const MODEL_URL = './models/model.glb'
+// Путь к модели (статика с корня ветки на GitHub Pages)
+const MODEL_URL = './public/models/model.glb'
 
 const canvas = document.querySelector('#webgl')
 const scene = new THREE.Scene()
@@ -37,7 +36,7 @@ function frameModel(obj) {
   const center = box.getCenter(new THREE.Vector3())
   obj.position.sub(center)
   const maxAxis = Math.max(size.x, size.y, size.z) || 1
-  obj.scale.setScalar(2.4 / maxAxis)
+  obj.scale.setScalar(2.6 / maxAxis)
 }
 
 let loaded = null
@@ -46,13 +45,12 @@ loader.load(
   MODEL_URL,
   (gltf) => { loaded = gltf.scene; frameModel(loaded); group.add(loaded) },
   undefined,
-  () => {
-    // заглушка, пока нет реальной модели
+  (err) => {
+    console.warn('[NOVA] Не удалось загрузить модель, показываю заглушку.', err)
     const geo = new THREE.TorusKnotGeometry(1, 0.34, 220, 32)
     const mat = new THREE.MeshStandardMaterial({ color: 0x6366f1, metalness: 0.55, roughness: 0.18 })
     loaded = new THREE.Mesh(geo, mat)
     group.add(loaded)
-    console.warn('[NOVA] Модель не найдена. Залей файл в public/models/model.glb — пока показываю заглушку.')
   }
 )
 

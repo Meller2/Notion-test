@@ -3,7 +3,18 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>NOVA 3D — интерактивная витрина</title>
+<title>NOVA 3D — BMW E30</title>
+<link rel="stylesheet" href="./src/style.css" />
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/",
+    "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/+esm",
+    "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js/+esm"
+  }
+}
+</script>
 </head>
 <body>
 <canvas id="webgl"></canvas>
@@ -11,22 +22,22 @@
 <main class="overlay">
   <section class="panel"><div>
     <p class="kicker">NOVA · 3D</p>
-    <h1>Твоя модель.<br><span class="grad">В движении.</span></h1>
-    <p class="sub">Скролль вниз — объект вращается и оживает в реальном времени на WebGL.</p>
+    <h1>BMW E30.<br><span class="grad">В движении.</span></h1>
+    <p class="sub">Скролль вниз — легенда вращается и оживает в реальном времени на WebGL.</p>
   </div></section>
   <section class="panel right"><div>
     <h2 class="grad">Каждая деталь</h2>
-    <p class="sub">GLTFLoader тянет твою .glb модель, а свет и тонмаппинг делают её кинематографичной.</p>
+    <p class="sub">Кинематографичный свет и тонмаппинг подчёркивают геометрию кузова.</p>
   </div></section>
   <section class="panel"><div>
     <h2 class="grad">Плавно</h2>
     <p class="sub">GSAP ScrollTrigger связывает скролл с камерой и вращением — никаких рывков.</p>
   </div></section>
   <section class="panel center"><div>
-    <h2 class="grad">Готов к продакшену</h2>
-    <p class="sub">Vite собирает быстрый бандл. Деплой в один клик на любой хостинг.</p>
+    <h2 class="grad">Чистая статика</h2>
+    <p class="sub">Без сборки и бэкенда. Работает прямо на GitHub Pages.</p>
   </div></section>
 </main>
-<script type="module" src="/src/main.js"></script>
+<script type="module" src="./src/main.js"></script>
 </body>
 </html>
