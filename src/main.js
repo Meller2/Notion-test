@@ -11,7 +11,15 @@ const progressEl = document.querySelector('#loadProgress')
 const progressBar = document.querySelector('.progress span')
 const cursorGlow = document.querySelector('.cursor-glow')
 
-const MODEL_URL = `${import.meta.env.BASE_URL}models/model.glb`
+const isGithubPages = window.location.hostname.includes('github.io')
+const viteBase = import.meta.env?.BASE_URL
+const baseUrl = viteBase || (isGithubPages ? '/Notion-test/' : './')
+const MODEL_URLS = [
+  `${baseUrl}models/model.glb`,
+  `${baseUrl}public/models/model.glb`,
+  './public/models/model.glb',
+].filter((value, index, array) => array.indexOf(value) === index)
+
 const sizes = { width: window.innerWidth, height: window.innerHeight }
 const pointer = new THREE.Vector2(0, 0)
 
@@ -175,45 +183,55 @@ function frameModel(object) {
 
 let car = null
 let loaded = false
+let timedOut = false
 const gltfLoader = new GLTFLoader()
-gltfLoader.load(
-  MODEL_URL,
-  (gltf) => {
-    car = gltf.scene
-    frameModel(car)
-    carPivot.add(car)
-    loaded = true
-    hideLoader()
-    gsap.fromTo(carPivot.scale, { x: 0.18, y: 0.18, z: 0.18 }, { x: 1, y: 1, z: 1, duration: 1.35, ease: 'expo.out' })
-    gsap.fromTo(carPivot.rotation, { y: -Math.PI * 0.7 }, { y: -0.22, duration: 1.45, ease: 'power4.out' })
-  },
-  (event) => {
-    const percent = event.total ? Math.round((event.loaded / event.total) * 100) : 72
-    progressEl.textContent = `${Math.min(percent, 99)}%`
-  },
-  (error) => {
-    console.warn('[NOVA] Не удалось загрузить GLB, показываю fallback.', error)
-    car = makeFallbackCar()
-    frameModel(car)
-    carPivot.add(car)
-    loaded = true
-    hideLoader()
+
+function revealCar(object) {
+  car = object
+  frameModel(car)
+  carPivot.add(car)
+  loaded = true
+  hideLoader()
+  gsap.fromTo(carPivot.scale, { x: 0.18, y: 0.18, z: 0.18 }, { x: 1, y: 1, z: 1, duration: 1.35, ease: 'expo.out' })
+  gsap.fromTo(carPivot.rotation, { y: -Math.PI * 0.7 }, { y: -0.22, duration: 1.45, ease: 'power4.out' })
+}
+
+function loadModelFromList(index = 0) {
+  const url = MODEL_URLS[index]
+  if (!url || timedOut) {
+    console.warn('[NOVA] GLB не загрузился, показываю fallback-машину.')
+    revealCar(makeFallbackCar())
+    return
   }
-)
+
+  gltfLoader.load(
+    url,
+    (gltf) => revealCar(gltf.scene),
+    (event) => {
+      const percent = event.total ? Math.round((event.loaded / event.total) * 100) : Math.min(95, 12 + index * 28)
+      progressEl.textContent = `${Math.min(percent, 99)}%`
+    },
+    (error) => {
+      console.warn(`[NOVA] Не удалось загрузить модель по пути ${url}`, error)
+      loadModelFromList(index + 1)
+    }
+  )
+}
 
 function hideLoader() {
   progressEl.textContent = '100%'
-  window.setTimeout(() => loaderEl.classList.add('is-hidden'), 280)
+  window.setTimeout(() => loaderEl.classList.add('is-hidden'), 220)
 }
+
+loadModelFromList()
+
 window.setTimeout(() => {
   if (!loaded) {
-    car = makeFallbackCar()
-    frameModel(car)
-    carPivot.add(car)
-    loaded = true
-    hideLoader()
+    timedOut = true
+    progressEl.textContent = 'fallback'
+    revealCar(makeFallbackCar())
   }
-}, 6500)
+}, 4500)
 
 const intro = gsap.timeline({ defaults: { ease: 'power4.out' }, delay: 0.15 })
 intro
