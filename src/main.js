@@ -75,7 +75,7 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
 const carRig = new THREE.Group()
 const carPivot = new THREE.Group()
-carRig.position.set(2.65, 0, -0.35)
+carRig.position.set(3.35, 0, -0.75)
 carRig.add(carPivot)
 scene.add(carRig)
 
@@ -184,7 +184,7 @@ function frameModel(object) {
   const center = box.getCenter(new THREE.Vector3())
   object.position.sub(center)
   const maxAxis = Math.max(size.x, size.y, size.z) || 1
-  object.scale.setScalar(2.72 / maxAxis)
+  object.scale.setScalar(2.52 / maxAxis)
   object.traverse((child) => {
     if (child.isMesh) {
       child.castShadow = true
@@ -208,7 +208,7 @@ function revealCar(object) {
   carPivot.add(car)
   loaded = true
   hideLoader()
-  gsap.fromTo(carPivot.scale, { x: 0.18, y: 0.18, z: 0.18 }, { x: 1, y: 1, z: 1, duration: 1.35, ease: 'expo.out' })
+  gsap.fromTo(carPivot.scale, { x: 0.18, y: 0.18, z: 0.18 }, { x: 0.9, y: 0.9, z: 0.9, duration: 1.35, ease: 'expo.out' })
   gsap.fromTo(carPivot.rotation, { y: -Math.PI * 0.7 }, { y: -0.18, duration: 1.45, ease: 'power4.out' })
 }
 
@@ -287,39 +287,49 @@ function setupScroll() {
     }
   })
 
-  const mobileScale = isNarrow() ? 0.5 : 0.82
-  const side = isNarrow() ? 1.05 : isMedium() ? 2.3 : 3.15
-  const heroSide = isNarrow() ? 0.75 : isMedium() ? 2.2 : 3.05
-  const depth = isNarrow() ? -0.55 : -0.95
+  const mobileScale = isNarrow() ? 0.45 : 0.72
+  const side = isNarrow() ? 1.18 : isMedium() ? 3.05 : 4.15
+  const heroSide = isNarrow() ? 0.92 : isMedium() ? 2.85 : 3.7
+  const depth = isNarrow() ? -0.85 : -1.35
 
   sceneTl
     // Hero: text sits left, car lives on the far right.
     .to(carRig.rotation, { y: Math.PI * 0.42, x: 0.03, ease: 'none' }, 0)
     .to(carRig.position, { x: heroSide, y: -0.05, z: depth, ease: 'none' }, 0)
     .to(carPivot.scale, { x: mobileScale, y: mobileScale, z: mobileScale, ease: 'none' }, 0)
-    .to(camera.position, { x: -0.5, y: 0.9, z: 7.05, ease: 'none' }, 0)
+    .to(camera.position, { x: -0.62, y: 0.9, z: 7.35, ease: 'none' }, 0)
 
-    // Motion panel: text is right, car is pushed hard left and slightly back.
-    .to(carRig.rotation, { y: Math.PI * 0.95, x: 0.02, ease: 'none' }, 0.2)
-    .to(carRig.position, { x: -side, y: -0.08, z: depth - 0.35, ease: 'none' }, 0.2)
-    .to(camera.position, { x: 0.68, y: 0.98, z: 6.55, ease: 'none' }, 0.2)
-    .to(rim, { intensity: 6.5, ease: 'none' }, 0.2)
+    // Pre-shift: before Motion text reveals, move the car away from the right panel.
+    .to(carRig.rotation, { y: Math.PI * 0.9, x: 0.02, ease: 'none' }, 0.08)
+    .to(carRig.position, { x: -side, y: -0.08, z: depth - 0.5, ease: 'none' }, 0.08)
+    .to(camera.position, { x: 0.78, y: 0.98, z: 6.85, ease: 'none' }, 0.08)
+    .to(rim, { intensity: 6.5, ease: 'none' }, 0.08)
 
-    // Craft panel: text is left, car is pushed hard right.
-    .to(carRig.rotation, { y: Math.PI * 1.58, x: -0.02, ease: 'none' }, 0.46)
-    .to(carRig.position, { x: side, y: -0.08, z: depth - 0.4, ease: 'none' }, 0.46)
-    .to(camera.position, { x: -0.72, y: 1.08, z: 6.2, ease: 'none' }, 0.46)
-    .to(accent.position, { x: -2.5, y: 1.9, z: 2.1, ease: 'none' }, 0.46)
+    // Motion panel hold: keep it pinned left while the right text is on screen.
+    .to(carRig.rotation, { y: Math.PI * 1.05, x: 0.02, ease: 'none' }, 0.22)
+    .to(carRig.position, { x: -side, y: -0.08, z: depth - 0.55, ease: 'none' }, 0.22)
+    .to(camera.position, { x: 0.78, y: 0.98, z: 6.85, ease: 'none' }, 0.22)
 
-    // Showcase card is centered, so car stays as a side hero element, not under the card.
-    .to(carRig.rotation, { y: Math.PI * 2.05, x: 0, ease: 'none' }, 0.68)
-    .to(carRig.position, { x: side + 0.55, y: -0.08, z: depth - 0.25, ease: 'none' }, 0.68)
-    .to(camera.position, { x: -0.55, y: 1.28, z: 6.35, ease: 'none' }, 0.68)
+    // Pre-shift for Craft: move right before left text enters.
+    .to(carRig.rotation, { y: Math.PI * 1.48, x: -0.02, ease: 'none' }, 0.34)
+    .to(carRig.position, { x: side, y: -0.08, z: depth - 0.5, ease: 'none' }, 0.34)
+    .to(camera.position, { x: -0.82, y: 1.08, z: 6.55, ease: 'none' }, 0.34)
+    .to(accent.position, { x: -2.5, y: 1.9, z: 2.1, ease: 'none' }, 0.34)
+
+    // Craft panel hold.
+    .to(carRig.rotation, { y: Math.PI * 1.68, x: -0.02, ease: 'none' }, 0.48)
+    .to(carRig.position, { x: side, y: -0.08, z: depth - 0.55, ease: 'none' }, 0.48)
+    .to(camera.position, { x: -0.82, y: 1.08, z: 6.55, ease: 'none' }, 0.48)
+
+    // Showcase card is left, car stays right and back.
+    .to(carRig.rotation, { y: Math.PI * 2.05, x: 0, ease: 'none' }, 0.62)
+    .to(carRig.position, { x: side + 0.65, y: -0.1, z: depth - 0.45, ease: 'none' }, 0.62)
+    .to(camera.position, { x: -0.68, y: 1.28, z: 6.75, ease: 'none' }, 0.62)
 
     // Final: content left, car remains right and lower in frame.
-    .to(carRig.rotation, { y: Math.PI * 2.35, x: 0, ease: 'none' }, 0.84)
-    .to(carRig.position, { x: side, y: -0.18, z: depth - 0.15, ease: 'none' }, 0.84)
-    .to(camera.position, { x: -0.35, y: 1.32, z: 6.75, ease: 'none' }, 0.84)
+    .to(carRig.rotation, { y: Math.PI * 2.35, x: 0, ease: 'none' }, 0.82)
+    .to(carRig.position, { x: side, y: -0.18, z: depth - 0.25, ease: 'none' }, 0.82)
+    .to(camera.position, { x: -0.48, y: 1.32, z: 7.05, ease: 'none' }, 0.82)
 
   gsap.to('.ambient-a', { x: '18vw', y: '12vh', scrollTrigger: { trigger: '.page', scrub: 1 } })
   gsap.to('.ambient-b', { x: '-14vw', y: '-18vh', scrollTrigger: { trigger: '.page', scrub: 1 } })
