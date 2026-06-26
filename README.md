@@ -1,11 +1,18 @@
-# NOVA 3D — BMW E30 Cinematic Landing
+# E30 Nocturne — Cinematic WebGL Study
 
-Кинематографичный 3D-лендинг на **Vite + Three.js + GSAP**. Проект показывает BMW E30 в WebGL-сцене с анимированной камерой, неоновым светом, scroll-driven движением автомобиля и эффектным появлением текста.
+Сдержанный 3D-лендинг на **Vite + Three.js + GSAP**. Проект показывает BMW E30 в тёмной automotive-сцене с управляемой камерой, scroll-driven движением автомобиля и аккуратной типографикой.
 
-## Что внутри
+## Визуальное направление
 
-- **Three.js** — 3D-сцена, GLTFLoader, свет, тени, частицы, fallback-модель.
-- **GSAP + ScrollTrigger** — анимации текста, скролл-таймлайн автомобиля и камеры.
+- **Palette:** graphite black, warm bone, muted brass, oxblood accent.
+- **Composition:** автомобиль уходит на свободную сторону экрана, чтобы не перекрывать текст.
+- **Motion:** GSAP ScrollTrigger двигает камеру, свет и автомобиль по секциям.
+- **Fallback:** если GLB не загрузился, сцена открывается с простой fallback-машиной.
+
+## Стек
+
+- **Three.js** — 3D-сцена, GLTFLoader, свет, тени, частицы.
+- **GSAP + ScrollTrigger** — анимации текста и scroll timeline.
 - **Vite** — сборка и локальный dev-сервер.
 - **GitHub Pages workflow** — деплой собранной папки `dist`.
 
@@ -33,17 +40,11 @@ npm run preview
 public/models/model.glb
 ```
 
-В коде она грузится через:
-
-```js
-const MODEL_URL = `${import.meta.env.BASE_URL}models/model.glb`
-```
-
-Так путь корректно работает и локально, и на GitHub Pages.
+В коде она грузится через base-path, который корректно работает и локально, и на GitHub Pages.
 
 ## Деплой
 
-Проект настроен под GitHub Pages с base-path:
+Проект настроен под GitHub Pages:
 
 ```js
 base: '/Notion-test/'

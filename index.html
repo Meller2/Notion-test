@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="NOVA 3D — кинематографичный WebGL-лендинг BMW E30 на Three.js и GSAP." />
-  <title>NOVA 3D — BMW E30 Cinematic</title>
+  <meta name="description" content="E30 Nocturne — сдержанный cinematic WebGL-лендинг BMW E30 на Three.js и GSAP." />
+  <title>E30 Nocturne — Cinematic WebGL Study</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="stylesheet" href="./src/style.css" />
   <script type="importmap">
@@ -20,87 +20,95 @@
 </head>
 <body>
   <div class="noise" aria-hidden="true"></div>
-  <div class="aurora aurora-a" aria-hidden="true"></div>
-  <div class="aurora aurora-b" aria-hidden="true"></div>
+  <div class="ambient ambient-a" aria-hidden="true"></div>
+  <div class="ambient ambient-b" aria-hidden="true"></div>
   <div class="cursor-glow" aria-hidden="true"></div>
 
   <div class="loader" id="loader" aria-live="polite">
     <div class="loader__ring"></div>
-    <p>Загружаю E30</p>
+    <p>Поднимаю сцену</p>
     <span id="loadProgress">0%</span>
   </div>
 
   <canvas id="webgl" aria-label="3D сцена BMW E30"></canvas>
 
   <header class="topbar">
-    <a class="brand" href="#hero" aria-label="NOVA 3D">
-      <span class="brand__dot"></span>
-      NOVA<span>3D</span>
+    <a class="brand" href="#hero" aria-label="E30 Nocturne">
+      <span class="brand__mark"></span>
+      E30<span>Nocturne</span>
     </a>
     <nav class="nav" aria-label="Разделы">
       <a href="#motion">Motion</a>
-      <a href="#details">Details</a>
-      <a href="#finish">Launch</a>
+      <a href="#details">Craft</a>
+      <a href="#finish">Deploy</a>
     </nav>
   </header>
 
   <main class="page">
     <section class="hero panel" id="hero">
-      <div class="hero__meta reveal-line">BMW E30 · WebGL experience</div>
-      <h1 class="hero__title split-lines">
-        Легенда<br />в неоновом<br /><span>движении.</span>
-      </h1>
-      <p class="hero__lead reveal-line">
-        Кинематографичный скролл, агрессивный свет, живая камера и 3D-модель, которая ведёт себя как главный герой сцены.
-      </p>
-      <div class="hero__actions reveal-line">
-        <a class="button" href="#motion">Смотреть сцену</a>
-        <span class="scroll-hint">Scroll</span>
+      <div class="content-block content-block--hero">
+        <div class="hero__meta reveal-line">BMW E30 · restrained WebGL study</div>
+        <h1 class="hero__title split-lines">
+          Старая школа.<br />Ночная сцена.<br /><span>Чистое движение.</span>
+        </h1>
+        <p class="hero__lead reveal-line">
+          Неоновую игрушечность убрал. Теперь это тёмная автомобильная сцена: графит, тёплый металл, глубокие тени и камера, которая освобождает место для текста.
+        </p>
+        <div class="hero__actions reveal-line">
+          <a class="button" href="#motion">Смотреть хореографию</a>
+          <span class="scroll-hint">Scroll</span>
+        </div>
       </div>
     </section>
 
     <section class="panel copy-panel panel--right" id="motion">
-      <p class="eyebrow reveal-line">01 · choreography</p>
-      <h2 class="section-title split-lines">Автомобиль больше не стоит мёртвым грузом.</h2>
-      <p class="section-copy reveal-line">
-        По скроллу E30 разворачивается, камера приближается, свет меняет температуру, а кузов получает плавный floating-motion и реакцию на курсор.
-      </p>
-      <div class="stat-row reveal-line">
-        <div><b>3D</b><span>центрирование модели</span></div>
-        <div><b>GSAP</b><span>scroll timeline</span></div>
-        <div><b>FX</b><span>particles + glow</span></div>
+      <div class="content-block content-block--right">
+        <p class="eyebrow reveal-line">01 · motion discipline</p>
+        <h2 class="section-title split-lines">Машина уходит туда, где нет текста.</h2>
+        <p class="section-copy reveal-line">
+          В каждом ключевом блоке автомобиль занимает противоположную сторону экрана: текст справа — машина слева, текст слева — машина справа. Без перекрытия и визуальной каши.
+        </p>
+        <div class="stat-row reveal-line">
+          <div><b>Split</b><span>свободные зоны</span></div>
+          <div><b>Camera</b><span>мягкий объезд</span></div>
+          <div><b>Light</b><span>low-key setup</span></div>
+        </div>
       </div>
     </section>
 
     <section class="panel copy-panel" id="details">
-      <p class="eyebrow reveal-line">02 · visual system</p>
-      <h2 class="section-title split-lines">Текст теперь появляется слоями, а не просто лежит на странице.</h2>
-      <p class="section-copy reveal-line">
-        Заголовки разбиты на строки и символы, блоки входят с маской, фон дышит градиентами, а интерфейс держит премиальный automotive-настрой.
-      </p>
-      <div class="feature-stack reveal-line">
-        <span>Neon rim light</span>
-        <span>Glass panels</span>
-        <span>Responsive layout</span>
-        <span>Model fallback</span>
+      <div class="content-block">
+        <p class="eyebrow reveal-line">02 · visual craft</p>
+        <h2 class="section-title split-lines">Палитра стала взрослой: graphite, bone, brass, oxblood.</h2>
+        <p class="section-copy reveal-line">
+          Вместо “голубой-пурпурный баблгам” — почти монохромный automotive look с тёплым акцентом, аккуратной типографикой и контрастом как в ночной студийной съёмке.
+        </p>
+        <div class="feature-stack reveal-line">
+          <span>Graphite black</span>
+          <span>Warm bone text</span>
+          <span>Brass highlight</span>
+          <span>Oxblood accent</span>
+        </div>
       </div>
     </section>
 
     <section class="panel showcase-panel">
       <div class="showcase-card reveal-line">
         <span class="card-number">E30</span>
-        <h3>Classic body. Digital stage.</h3>
-        <p>Сцена построена так, чтобы машина читалась с первого экрана: контрастный свет, тени, сетка пола и управляемая камера.</p>
+        <h3>Classic body. Quiet confidence.</h3>
+        <p>Сцена теперь работает как арт-дирекшн, а не как демка эффектов: меньше кислотности, больше веса, воздуха и контроля композиции.</p>
       </div>
     </section>
 
     <section class="panel final-panel" id="finish">
-      <p class="eyebrow reveal-line">03 · ready for deploy</p>
-      <h2 class="final-title split-lines">Теперь это похоже на демо, которое не стыдно открыть.</h2>
-      <p class="section-copy reveal-line">
-        Следующий уровень — добавить настоящие хотспоты по деталям автомобиля, звук двигателя и оптимизировать GLB под быстрый первый запуск.
-      </p>
-      <a class="button button--ghost reveal-line" href="https://github.com/Meller2/Notion-test" target="_blank" rel="noreferrer">Открыть GitHub</a>
+      <div class="content-block">
+        <p class="eyebrow reveal-line">03 · deploy ready</p>
+        <h2 class="final-title split-lines">E30 Nocturne. Не “Nova 3D”.</h2>
+        <p class="section-copy reveal-line">
+          Название теперь звучит как автомобильный визуальный этюд, а не шаблонный стартап из генератора. Дальше можно докрутить хотспоты, звук и оптимизацию GLB.
+        </p>
+        <a class="button button--ghost reveal-line" href="https://github.com/Meller2/Notion-test" target="_blank" rel="noreferrer">Открыть GitHub</a>
+      </div>
     </section>
   </main>
 
