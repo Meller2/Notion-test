@@ -3,6 +3,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
+const ENGINE_AUDIO_URL = `${import.meta.env.BASE_URL}1-zvuk_motora_-_Zvuk_motora_(SkySound.cc).mp3`
+
 const style = document.createElement('style')
 style.textContent = `
   .engine-toggle {
@@ -229,50 +231,46 @@ const needle = tach.querySelector('.tach__needle')
 const rpmText = tach.querySelector('.tach__rpm')
 const gears = [...gearbox.querySelectorAll('span')]
 
-let audioCtx = null
-let osc = null
-let subOsc = null
-let gain = null
-let filter = null
+const engineAudio = new Audio(encodeURI(ENGINE_AUDIO_URL))
+engineAudio.loop = true
+engineAudio.preload = 'auto'
+engineAudio.volume = 0
+engineAudio.playbackRate = 0.86
+
 let currentRpm = 900
-
-function setupAudio() {
-  if (audioCtx) return
-  audioCtx = new AudioContext()
-  osc = audioCtx.createOscillator()
-  subOsc = audioCtx.createOscillator()
-  gain = audioCtx.createGain()
-  filter = audioCtx.createBiquadFilter()
-
-  osc.type = 'sawtooth'
-  subOsc.type = 'triangle'
-  filter.type = 'lowpass'
-  filter.frequency.value = 420
-  gain.gain.value = 0.0001
-
-  osc.connect(filter)
-  subOsc.connect(filter)
-  filter.connect(gain)
-  gain.connect(audioCtx.destination)
-  osc.start()
-  subOsc.start()
-}
+let targetVolume = 0
+let currentVolume = 0
 
 function updateEngineSound(rpm) {
-  if (!audioCtx || !osc || !gain || !filter) return
-  const now = audioCtx.currentTime
-  const base = 32 + rpm / 95
-  osc.frequency.setTargetAtTime(base, now, 0.045)
-  subOsc.frequency.setTargetAtTime(base * 0.5, now, 0.055)
-  filter.frequency.setTargetAtTime(320 + rpm * 0.18, now, 0.06)
-  gain.gain.setTargetAtTime(document.body.classList.contains('engine-on') ? 0.032 : 0.0001, now, 0.08)
+  const isOn = document.body.classList.contains('engine-on')
+  targetVolume = isOn ? 0.42 : 0
+
+  const spike = Math.max(0, Math.min(1, (rpm - 2400) / 4200))
+  const rate = 0.82 + Math.min(0.55, rpm / 9000) + spike * 0.08
+  engineAudio.playbackRate = Math.max(0.75, Math.min(1.42, rate))
 }
 
+function tickAudioFade() {
+  currentVolume += (targetVolume - currentVolume) * 0.08
+  engineAudio.volume = Math.max(0, Math.min(0.55, currentVolume))
+  requestAnimationFrame(tickAudioFade)
+}
+tickAudioFade()
+
 engineButton.addEventListener('click', async () => {
-  setupAudio()
-  if (audioCtx.state === 'suspended') await audioCtx.resume()
   document.body.classList.toggle('engine-on')
   engineButton.textContent = document.body.classList.contains('engine-on') ? 'Engine on' : 'Engine sound'
+
+  if (document.body.classList.contains('engine-on')) {
+    try {
+      await engineAudio.play()
+    } catch (error) {
+      console.warn('[E30 Nocturne] Браузер не дал включить звук.', error)
+      document.body.classList.remove('engine-on')
+      engineButton.textContent = 'Engine sound'
+    }
+  }
+
   updateEngineSound(currentRpm)
 })
 
