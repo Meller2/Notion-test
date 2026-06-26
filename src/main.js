@@ -23,19 +23,32 @@ const MODEL_URLS = [
 const sizes = { width: window.innerWidth, height: window.innerHeight }
 const pointer = new THREE.Vector2(0, 0)
 
+function escapeHtml(value) {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;')
+}
+
 function splitText() {
   document.querySelectorAll('.split-lines').forEach((element) => {
     const html = element.innerHTML
     const chunks = html.split(/<br\s*\/?>/i)
+
     element.innerHTML = chunks.map((chunk) => {
       const temp = document.createElement('span')
       temp.innerHTML = chunk.trim()
       const text = temp.textContent || ''
-      const chars = [...text].map((char) => {
-        if (char === ' ') return '<span class="split-char">&nbsp;</span>'
-        return `<span class="split-char">${char}</span>`
+
+      const words = text.split(/(\s+)/).map((part) => {
+        if (/^\s+$/.test(part)) return '<span class="split-space"> </span>'
+        const chars = [...part].map((char) => `<span class="split-char">${escapeHtml(char)}</span>`).join('')
+        return `<span class="split-word">${chars}</span>`
       }).join('')
-      return `<span class="split-line"><span class="split-word">${chars}</span></span>`
+
+      return `<span class="split-line">${words}</span>`
     }).join('')
   })
 }

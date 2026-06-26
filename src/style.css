@@ -277,8 +277,14 @@ a { color: inherit; text-decoration: none; }
 .showcase-card p { margin-top: 18px; color: var(--muted); line-height: 1.6; }
 .final-panel { min-height: 115vh; display: block; padding-top: 22vh; }
 
-.split-line { display: block; overflow: hidden; }
+.split-line {
+  display: block;
+  overflow: hidden;
+  max-width: 100%;
+}
 .split-word, .split-char { display: inline-block; }
+.split-word { white-space: nowrap; }
+.split-space { display: inline; white-space: normal; }
 .reveal-line { will-change: transform, opacity; }
 
 .progress {
@@ -302,13 +308,54 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 760px) {
   .nav { display: none; }
   .topbar { padding: 16px; }
-  .panel, .hero { padding-left: 18px; padding-right: 18px; }
-  .hero { padding-bottom: 10vh; }
+  .panel, .hero {
+    width: 100%;
+    max-width: none;
+    min-height: auto;
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  .hero {
+    min-height: 100vh;
+    padding-bottom: 10vh;
+  }
+  .copy-panel, .showcase-panel, .final-panel {
+    min-height: 92vh;
+    padding-top: 16vh;
+    padding-bottom: 16vh;
+  }
   .panel--right { text-align: left; margin-left: 0; }
   .panel--right .section-copy { margin-left: 0; }
+  .hero__title {
+    max-width: 100%;
+    font-size: clamp(50px, 16vw, 74px);
+    line-height: .92;
+    letter-spacing: -.065em;
+  }
+  .section-title, .final-title {
+    max-width: 100%;
+    font-size: clamp(32px, 10.4vw, 46px);
+    line-height: 1.02;
+    letter-spacing: -.045em;
+  }
+  .hero__lead, .section-copy {
+    max-width: 32rem;
+    font-size: 17px;
+    line-height: 1.55;
+  }
+  .eyebrow, .hero__meta {
+    letter-spacing: .16em;
+    font-size: 11px;
+  }
   .stat-row { grid-template-columns: 1fr; }
   .hero__actions { flex-direction: column; align-items: flex-start; }
   .cursor-glow { display: none; }
+}
+
+@media (max-width: 430px) {
+  .hero__title { font-size: clamp(44px, 15vw, 62px); }
+  .section-title, .final-title { font-size: clamp(29px, 9.4vw, 38px); }
+  .panel, .hero { padding-left: 16px; padding-right: 16px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
