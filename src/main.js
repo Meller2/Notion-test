@@ -23,6 +23,7 @@ const MODEL_URLS = [
 const sizes = { width: window.innerWidth, height: window.innerHeight }
 const pointer = new THREE.Vector2(0, 0)
 const isNarrow = () => window.innerWidth < 760
+const isMedium = () => window.innerWidth < 1120
 
 function escapeHtml(value) {
   return value
@@ -59,8 +60,8 @@ splitText()
 const scene = new THREE.Scene()
 scene.fog = new THREE.FogExp2(0x070706, 0.043)
 
-const camera = new THREE.PerspectiveCamera(36, sizes.width / sizes.height, 0.1, 160)
-camera.position.set(0.2, 1.05, 6.85)
+const camera = new THREE.PerspectiveCamera(34, sizes.width / sizes.height, 0.1, 160)
+camera.position.set(0.2, 1.05, 7.25)
 scene.add(camera)
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' })
@@ -74,7 +75,7 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
 const carRig = new THREE.Group()
 const carPivot = new THREE.Group()
-carRig.position.set(1.55, 0, 0)
+carRig.position.set(2.65, 0, -0.35)
 carRig.add(carPivot)
 scene.add(carRig)
 
@@ -183,7 +184,7 @@ function frameModel(object) {
   const center = box.getCenter(new THREE.Vector3())
   object.position.sub(center)
   const maxAxis = Math.max(size.x, size.y, size.z) || 1
-  object.scale.setScalar(3.15 / maxAxis)
+  object.scale.setScalar(2.72 / maxAxis)
   object.traverse((child) => {
     if (child.isMesh) {
       child.castShadow = true
@@ -286,30 +287,39 @@ function setupScroll() {
     }
   })
 
-  const mobileScale = isNarrow() ? 0.58 : 1
-  const right = isNarrow() ? 0.72 : 1.72
-  const left = isNarrow() ? -0.72 : -1.72
-  const mid = isNarrow() ? 0.36 : 0.92
+  const mobileScale = isNarrow() ? 0.5 : 0.82
+  const side = isNarrow() ? 1.05 : isMedium() ? 2.3 : 3.15
+  const heroSide = isNarrow() ? 0.75 : isMedium() ? 2.2 : 3.05
+  const depth = isNarrow() ? -0.55 : -0.95
 
   sceneTl
-    .to(carRig.rotation, { y: Math.PI * 0.5, x: 0.04, ease: 'none' }, 0)
-    .to(carRig.position, { x: right, y: -0.05, z: -0.15, ease: 'none' }, 0)
+    // Hero: text sits left, car lives on the far right.
+    .to(carRig.rotation, { y: Math.PI * 0.42, x: 0.03, ease: 'none' }, 0)
+    .to(carRig.position, { x: heroSide, y: -0.05, z: depth, ease: 'none' }, 0)
     .to(carPivot.scale, { x: mobileScale, y: mobileScale, z: mobileScale, ease: 'none' }, 0)
-    .to(camera.position, { x: -0.18, y: 0.78, z: 6.05, ease: 'none' }, 0)
+    .to(camera.position, { x: -0.5, y: 0.9, z: 7.05, ease: 'none' }, 0)
 
-    .to(carRig.rotation, { y: Math.PI * 1.05, x: 0.03, ease: 'none' }, 0.22)
-    .to(carRig.position, { x: left, y: -0.08, z: -0.25, ease: 'none' }, 0.22)
-    .to(camera.position, { x: 0.45, y: 0.95, z: 5.65, ease: 'none' }, 0.22)
-    .to(rim, { intensity: 6.7, ease: 'none' }, 0.22)
+    // Motion panel: text is right, car is pushed hard left and slightly back.
+    .to(carRig.rotation, { y: Math.PI * 0.95, x: 0.02, ease: 'none' }, 0.2)
+    .to(carRig.position, { x: -side, y: -0.08, z: depth - 0.35, ease: 'none' }, 0.2)
+    .to(camera.position, { x: 0.68, y: 0.98, z: 6.55, ease: 'none' }, 0.2)
+    .to(rim, { intensity: 6.5, ease: 'none' }, 0.2)
 
-    .to(carRig.rotation, { y: Math.PI * 1.65, x: -0.02, ease: 'none' }, 0.48)
-    .to(carRig.position, { x: right, y: -0.08, z: -0.35, ease: 'none' }, 0.48)
-    .to(camera.position, { x: -0.55, y: 1.12, z: 5.2, ease: 'none' }, 0.48)
-    .to(accent.position, { x: -2.5, y: 1.9, z: 2.1, ease: 'none' }, 0.48)
+    // Craft panel: text is left, car is pushed hard right.
+    .to(carRig.rotation, { y: Math.PI * 1.58, x: -0.02, ease: 'none' }, 0.46)
+    .to(carRig.position, { x: side, y: -0.08, z: depth - 0.4, ease: 'none' }, 0.46)
+    .to(camera.position, { x: -0.72, y: 1.08, z: 6.2, ease: 'none' }, 0.46)
+    .to(accent.position, { x: -2.5, y: 1.9, z: 2.1, ease: 'none' }, 0.46)
 
-    .to(carRig.rotation, { y: Math.PI * 2.15, x: 0, ease: 'none' }, 0.75)
-    .to(carRig.position, { x: mid, y: 0, z: 0.08, ease: 'none' }, 0.75)
-    .to(camera.position, { x: -0.18, y: 1.35, z: 5.85, ease: 'none' }, 0.75)
+    // Showcase card is centered, so car stays as a side hero element, not under the card.
+    .to(carRig.rotation, { y: Math.PI * 2.05, x: 0, ease: 'none' }, 0.68)
+    .to(carRig.position, { x: side + 0.55, y: -0.08, z: depth - 0.25, ease: 'none' }, 0.68)
+    .to(camera.position, { x: -0.55, y: 1.28, z: 6.35, ease: 'none' }, 0.68)
+
+    // Final: content left, car remains right and lower in frame.
+    .to(carRig.rotation, { y: Math.PI * 2.35, x: 0, ease: 'none' }, 0.84)
+    .to(carRig.position, { x: side, y: -0.18, z: depth - 0.15, ease: 'none' }, 0.84)
+    .to(camera.position, { x: -0.35, y: 1.32, z: 6.75, ease: 'none' }, 0.84)
 
   gsap.to('.ambient-a', { x: '18vw', y: '12vh', scrollTrigger: { trigger: '.page', scrub: 1 } })
   gsap.to('.ambient-b', { x: '-14vw', y: '-18vh', scrollTrigger: { trigger: '.page', scrub: 1 } })
@@ -325,12 +335,12 @@ window.addEventListener('pointermove', (event) => {
 const clock = new THREE.Clock()
 function tick() {
   const elapsed = clock.getElapsedTime()
-  const parallaxX = pointer.x * 0.12
-  const parallaxY = pointer.y * 0.08
+  const parallaxX = pointer.x * 0.1
+  const parallaxY = pointer.y * 0.065
 
-  carRig.rotation.x += (parallaxY - carRig.rotation.x) * 0.022
-  carRig.position.y = Math.sin(elapsed * 0.78) * 0.042
-  carPivot.rotation.z = Math.sin(elapsed * 0.62) * 0.014
+  carRig.rotation.x += (parallaxY - carRig.rotation.x) * 0.018
+  carRig.position.y += ((Math.sin(elapsed * 0.78) * 0.035) - carRig.position.y) * 0.02
+  carPivot.rotation.z = Math.sin(elapsed * 0.62) * 0.012
 
   camera.lookAt(parallaxX, 0.18 + parallaxY, 0)
   particles.rotation.y = elapsed * 0.018

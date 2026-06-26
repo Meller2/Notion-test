@@ -162,7 +162,7 @@ a { color: inherit; text-decoration: none; }
   min-height: 100vh;
   display: flex;
   align-items: center;
-  padding: 10vh clamp(20px, 7vw, 100px);
+  padding: 10vh clamp(28px, 6vw, 100px);
 }
 .hero { align-items: flex-end; padding-bottom: 12vh; }
 .hero, .copy-panel { max-width: none; }
@@ -170,7 +170,7 @@ a { color: inherit; text-decoration: none; }
 .panel--right { justify-content: flex-end; text-align: right; }
 
 .content-block {
-  width: min(620px, 48vw);
+  width: min(560px, 41vw);
   position: relative;
   isolation: isolate;
 }
@@ -180,12 +180,12 @@ a { color: inherit; text-decoration: none; }
   inset: -28px -32px;
   z-index: -1;
   border-radius: 34px;
-  background: linear-gradient(135deg, rgba(7,7,6,.68), rgba(7,7,6,.3));
-  border: 1px solid rgba(241,234,220,.07);
-  box-shadow: 0 28px 110px rgba(0,0,0,.28);
-  opacity: .72;
+  background: linear-gradient(135deg, rgba(7,7,6,.76), rgba(7,7,6,.4));
+  border: 1px solid rgba(241,234,220,.08);
+  box-shadow: 0 28px 120px rgba(0,0,0,.45);
+  opacity: .82;
 }
-.content-block--hero::before { opacity: .45; }
+.content-block--hero::before { opacity: .52; }
 .content-block--right { margin-left: auto; }
 
 .hero__meta, .eyebrow {
@@ -204,8 +204,8 @@ a { color: inherit; text-decoration: none; }
   text-wrap: balance;
   color: var(--bone);
 }
-.hero__title { font-size: clamp(58px, 9.4vw, 142px); }
-.section-title, .final-title { font-size: clamp(42px, 5.7vw, 86px); }
+.hero__title { font-size: clamp(56px, 8.2vw, 124px); }
+.section-title, .final-title { font-size: clamp(40px, 5vw, 76px); }
 .hero__title span, .section-title span, .final-title span {
   background: linear-gradient(115deg, var(--bone) 0%, var(--brass-soft) 48%, #8f7960 100%);
   -webkit-background-clip: text;
@@ -217,7 +217,7 @@ a { color: inherit; text-decoration: none; }
   max-width: 610px;
   margin-top: 26px;
   color: var(--muted);
-  font-size: clamp(17px, 1.65vw, 21px);
+  font-size: clamp(16px, 1.45vw, 20px);
   line-height: 1.55;
 }
 .panel--right .section-copy { margin-left: auto; }
@@ -278,12 +278,13 @@ a { color: inherit; text-decoration: none; }
   background: rgba(241,234,220,.06);
   color: var(--muted);
 }
-.showcase-panel { justify-content: center; min-height: 120vh; }
+.showcase-panel { justify-content: flex-start; min-height: 120vh; }
 .showcase-card {
-  width: min(520px, 100%);
+  width: min(500px, 42vw);
   padding: clamp(26px, 5vw, 48px);
   border-radius: 34px;
   text-align: center;
+  margin-left: clamp(20px, 6vw, 92px);
 }
 .card-number {
   display: inline-grid;
@@ -297,7 +298,7 @@ a { color: inherit; text-decoration: none; }
   font-weight: 950;
   letter-spacing: -.06em;
 }
-.showcase-card h3 { font-size: clamp(30px, 4vw, 52px); line-height: .95; letter-spacing: -.05em; }
+.showcase-card h3 { font-size: clamp(30px, 3.4vw, 46px); line-height: .95; letter-spacing: -.05em; }
 .showcase-card p { margin-top: 18px; color: var(--muted); line-height: 1.6; }
 .final-panel { min-height: 115vh; display: block; padding-top: 22vh; }
 
@@ -329,10 +330,11 @@ a { color: inherit; text-decoration: none; }
   box-shadow: 0 0 24px rgba(198,161,91,.22);
 }
 
-@media (max-width: 980px) {
-  .content-block { width: min(640px, 72vw); }
-  .hero__title { font-size: clamp(56px, 11vw, 110px); }
-  .section-title, .final-title { font-size: clamp(38px, 7vw, 72px); }
+@media (max-width: 1120px) {
+  .content-block { width: min(520px, 45vw); }
+  .showcase-card { width: min(480px, 44vw); }
+  .hero__title { font-size: clamp(52px, 8vw, 96px); }
+  .section-title, .final-title { font-size: clamp(36px, 5.6vw, 64px); }
 }
 
 @media (max-width: 760px) {
@@ -354,13 +356,13 @@ a { color: inherit; text-decoration: none; }
     padding-top: 16vh;
     padding-bottom: 16vh;
   }
-  .panel--right { text-align: left; margin-left: 0; }
-  .content-block, .content-block--right {
+  .panel--right, .showcase-panel { text-align: left; justify-content: flex-start; }
+  .content-block, .content-block--right, .showcase-card {
     width: 100%;
     max-width: 34rem;
     margin-left: 0;
   }
-  .content-block::before { inset: -22px -18px; border-radius: 28px; opacity: .58; }
+  .content-block::before { inset: -22px -18px; border-radius: 28px; opacity: .68; }
   .panel--right .section-copy { margin-left: 0; }
   .hero__title {
     max-width: 100%;
