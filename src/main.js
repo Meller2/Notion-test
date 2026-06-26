@@ -58,10 +58,10 @@ function splitText() {
 splitText()
 
 const scene = new THREE.Scene()
-scene.fog = new THREE.FogExp2(0x070706, 0.043)
+scene.fog = new THREE.FogExp2(0x070706, 0.037)
 
-const camera = new THREE.PerspectiveCamera(34, sizes.width / sizes.height, 0.1, 160)
-camera.position.set(0.2, 1.05, 7.25)
+const camera = new THREE.PerspectiveCamera(32, sizes.width / sizes.height, 0.1, 160)
+camera.position.set(0.1, 1.05, 6.65)
 scene.add(camera)
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' })
@@ -75,24 +75,24 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
 const carRig = new THREE.Group()
 const carPivot = new THREE.Group()
-carRig.position.set(3.35, 0, -0.75)
+carRig.position.set(1.9, -0.03, -0.45)
 carRig.add(carPivot)
 scene.add(carRig)
 
 const hemi = new THREE.HemisphereLight(0xf3ead8, 0x0a0a08, 0.85)
 scene.add(hemi)
 
-const key = new THREE.DirectionalLight(0xf1eadc, 4.2)
+const key = new THREE.DirectionalLight(0xf1eadc, 4.35)
 key.position.set(4.8, 5.2, 4.2)
 key.castShadow = true
 key.shadow.mapSize.set(2048, 2048)
 scene.add(key)
 
-const rim = new THREE.DirectionalLight(0xc6a15b, 4.7)
+const rim = new THREE.DirectionalLight(0xc6a15b, 5.1)
 rim.position.set(-5.5, 2.4, -4.5)
 scene.add(rim)
 
-const accent = new THREE.PointLight(0x6e1f1a, 3.25, 10)
+const accent = new THREE.PointLight(0x6e1f1a, 3.35, 10)
 accent.position.set(2.4, 1.4, -2.8)
 scene.add(accent)
 
@@ -184,7 +184,7 @@ function frameModel(object) {
   const center = box.getCenter(new THREE.Vector3())
   object.position.sub(center)
   const maxAxis = Math.max(size.x, size.y, size.z) || 1
-  object.scale.setScalar(2.52 / maxAxis)
+  object.scale.setScalar(3.42 / maxAxis)
   object.traverse((child) => {
     if (child.isMesh) {
       child.castShadow = true
@@ -208,8 +208,8 @@ function revealCar(object) {
   carPivot.add(car)
   loaded = true
   hideLoader()
-  gsap.fromTo(carPivot.scale, { x: 0.18, y: 0.18, z: 0.18 }, { x: 0.9, y: 0.9, z: 0.9, duration: 1.35, ease: 'expo.out' })
-  gsap.fromTo(carPivot.rotation, { y: -Math.PI * 0.7 }, { y: -0.18, duration: 1.45, ease: 'power4.out' })
+  gsap.fromTo(carPivot.scale, { x: 0.26, y: 0.26, z: 0.26 }, { x: 1, y: 1, z: 1, duration: 1.25, ease: 'expo.out' })
+  gsap.fromTo(carPivot.rotation, { y: -Math.PI * 0.7 }, { y: -0.18, duration: 1.35, ease: 'power4.out' })
 }
 
 function loadModelFromList(index = 0) {
@@ -287,49 +287,49 @@ function setupScroll() {
     }
   })
 
-  const mobileScale = isNarrow() ? 0.45 : 0.72
-  const side = isNarrow() ? 1.18 : isMedium() ? 3.05 : 4.15
-  const heroSide = isNarrow() ? 0.92 : isMedium() ? 2.85 : 3.7
-  const depth = isNarrow() ? -0.85 : -1.35
+  const baseScale = isNarrow() ? 0.68 : 1
+  const side = isNarrow() ? 1.18 : isMedium() ? 2.58 : 3.18
+  const heroSide = isNarrow() ? 0.92 : isMedium() ? 2.18 : 2.62
+  const depth = isNarrow() ? -0.7 : -0.92
 
   sceneTl
-    // Hero: text sits left, car lives on the far right.
-    .to(carRig.rotation, { y: Math.PI * 0.42, x: 0.03, ease: 'none' }, 0)
+    // Hero: car is large and dominant on the right, text is left.
+    .to(carRig.rotation, { y: Math.PI * 0.36, x: 0.03, ease: 'none' }, 0)
     .to(carRig.position, { x: heroSide, y: -0.05, z: depth, ease: 'none' }, 0)
-    .to(carPivot.scale, { x: mobileScale, y: mobileScale, z: mobileScale, ease: 'none' }, 0)
-    .to(camera.position, { x: -0.62, y: 0.9, z: 7.35, ease: 'none' }, 0)
+    .to(carPivot.scale, { x: baseScale, y: baseScale, z: baseScale, ease: 'none' }, 0)
+    .to(camera.position, { x: -0.52, y: 0.86, z: 6.55, ease: 'none' }, 0)
 
-    // Pre-shift: before Motion text reveals, move the car away from the right panel.
-    .to(carRig.rotation, { y: Math.PI * 0.9, x: 0.02, ease: 'none' }, 0.08)
-    .to(carRig.position, { x: -side, y: -0.08, z: depth - 0.5, ease: 'none' }, 0.08)
-    .to(camera.position, { x: 0.78, y: 0.98, z: 6.85, ease: 'none' }, 0.08)
+    // Move early, but keep the car big — composition solves the overlap, not shrinking.
+    .to(carRig.rotation, { y: Math.PI * 0.86, x: 0.02, ease: 'none' }, 0.08)
+    .to(carRig.position, { x: -side, y: -0.08, z: depth - 0.18, ease: 'none' }, 0.08)
+    .to(camera.position, { x: 0.62, y: 0.96, z: 6.4, ease: 'none' }, 0.08)
     .to(rim, { intensity: 6.5, ease: 'none' }, 0.08)
 
-    // Motion panel hold: keep it pinned left while the right text is on screen.
-    .to(carRig.rotation, { y: Math.PI * 1.05, x: 0.02, ease: 'none' }, 0.22)
-    .to(carRig.position, { x: -side, y: -0.08, z: depth - 0.55, ease: 'none' }, 0.22)
-    .to(camera.position, { x: 0.78, y: 0.98, z: 6.85, ease: 'none' }, 0.22)
+    // Motion panel hold: car is big left, text panel is right.
+    .to(carRig.rotation, { y: Math.PI * 1.04, x: 0.02, ease: 'none' }, 0.22)
+    .to(carRig.position, { x: -side, y: -0.08, z: depth - 0.2, ease: 'none' }, 0.22)
+    .to(camera.position, { x: 0.62, y: 0.96, z: 6.4, ease: 'none' }, 0.22)
 
-    // Pre-shift for Craft: move right before left text enters.
-    .to(carRig.rotation, { y: Math.PI * 1.48, x: -0.02, ease: 'none' }, 0.34)
-    .to(carRig.position, { x: side, y: -0.08, z: depth - 0.5, ease: 'none' }, 0.34)
-    .to(camera.position, { x: -0.82, y: 1.08, z: 6.55, ease: 'none' }, 0.34)
+    // Pre-shift for Craft: car moves big right before left text enters.
+    .to(carRig.rotation, { y: Math.PI * 1.47, x: -0.02, ease: 'none' }, 0.34)
+    .to(carRig.position, { x: side, y: -0.08, z: depth - 0.22, ease: 'none' }, 0.34)
+    .to(camera.position, { x: -0.62, y: 1.02, z: 6.28, ease: 'none' }, 0.34)
     .to(accent.position, { x: -2.5, y: 1.9, z: 2.1, ease: 'none' }, 0.34)
 
     // Craft panel hold.
     .to(carRig.rotation, { y: Math.PI * 1.68, x: -0.02, ease: 'none' }, 0.48)
-    .to(carRig.position, { x: side, y: -0.08, z: depth - 0.55, ease: 'none' }, 0.48)
-    .to(camera.position, { x: -0.82, y: 1.08, z: 6.55, ease: 'none' }, 0.48)
+    .to(carRig.position, { x: side, y: -0.08, z: depth - 0.22, ease: 'none' }, 0.48)
+    .to(camera.position, { x: -0.62, y: 1.02, z: 6.28, ease: 'none' }, 0.48)
 
-    // Showcase card is left, car stays right and back.
-    .to(carRig.rotation, { y: Math.PI * 2.05, x: 0, ease: 'none' }, 0.62)
-    .to(carRig.position, { x: side + 0.65, y: -0.1, z: depth - 0.45, ease: 'none' }, 0.62)
-    .to(camera.position, { x: -0.68, y: 1.28, z: 6.75, ease: 'none' }, 0.62)
+    // Showcase: no tiny car. The card becomes secondary; car remains a hero object.
+    .to(carRig.rotation, { y: Math.PI * 2.02, x: 0, ease: 'none' }, 0.62)
+    .to(carRig.position, { x: 2.25, y: -0.1, z: depth - 0.12, ease: 'none' }, 0.62)
+    .to(camera.position, { x: -0.48, y: 1.18, z: 6.15, ease: 'none' }, 0.62)
 
-    // Final: content left, car remains right and lower in frame.
-    .to(carRig.rotation, { y: Math.PI * 2.35, x: 0, ease: 'none' }, 0.82)
-    .to(carRig.position, { x: side, y: -0.18, z: depth - 0.25, ease: 'none' }, 0.82)
-    .to(camera.position, { x: -0.48, y: 1.32, z: 7.05, ease: 'none' }, 0.82)
+    // Final: car still large on the right, content occupies left column.
+    .to(carRig.rotation, { y: Math.PI * 2.32, x: 0, ease: 'none' }, 0.82)
+    .to(carRig.position, { x: 2.35, y: -0.16, z: depth - 0.08, ease: 'none' }, 0.82)
+    .to(camera.position, { x: -0.46, y: 1.24, z: 6.35, ease: 'none' }, 0.82)
 
   gsap.to('.ambient-a', { x: '18vw', y: '12vh', scrollTrigger: { trigger: '.page', scrub: 1 } })
   gsap.to('.ambient-b', { x: '-14vw', y: '-18vh', scrollTrigger: { trigger: '.page', scrub: 1 } })
