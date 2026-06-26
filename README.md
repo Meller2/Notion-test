@@ -1,11 +1,13 @@
-# NOVA 3D — Vite + Three.js + GSAP
+# NOVA 3D — BMW E30 Cinematic Landing
 
-Интерактивная 3D-витрина со скроллителлингом. Загружает твою `.glb` модель и вращает её по скроллу. Собрано 🐾 Алексом прямо из Notion.
+Кинематографичный 3D-лендинг на **Vite + Three.js + GSAP**. Проект показывает BMW E30 в WebGL-сцене с анимированной камерой, неоновым светом, scroll-driven движением автомобиля и эффектным появлением текста.
 
-## Стек
-- **Vite** — сборка и dev-сервер
-- **Three.js** — WebGL, GLTFLoader
-- **GSAP + ScrollTrigger** — анимация по скроллу
+## Что внутри
+
+- **Three.js** — 3D-сцена, GLTFLoader, свет, тени, частицы, fallback-модель.
+- **GSAP + ScrollTrigger** — анимации текста, скролл-таймлайн автомобиля и камеры.
+- **Vite** — сборка и локальный dev-сервер.
+- **GitHub Pages workflow** — деплой собранной папки `dist`.
 
 ## Запуск
 
@@ -14,17 +16,7 @@ npm install
 npm run dev
 ```
 
-Открой http://localhost:5173
-
-## Своя 3D-модель
-
-Положи файл сюда:
-
-```
-public/models/model.glb
-```
-
-Пока файла нет — показывается заглушка. Чтобы поменять имя/путь — отредактируй `MODEL_URL` в `src/main.js`.
+Открой `http://localhost:5173`.
 
 ## Сборка
 
@@ -33,15 +25,28 @@ npm run build
 npm run preview
 ```
 
-## Структура
+## 3D-модель
 
+Модель лежит здесь:
+
+```txt
+public/models/model.glb
 ```
-├─ index.html
-├─ vite.config.js
-├─ package.json
-├─ public/
-│  └─ models/        # сюда кладёшь model.glb
-└─ src/
-   ├─ main.js        # сцена Three.js + GSAP
-   └─ style.css
+
+В коде она грузится через:
+
+```js
+const MODEL_URL = `${import.meta.env.BASE_URL}models/model.glb`
 ```
+
+Так путь корректно работает и локально, и на GitHub Pages.
+
+## Деплой
+
+Проект настроен под GitHub Pages с base-path:
+
+```js
+base: '/Notion-test/'
+```
+
+После пуша в `main` GitHub Actions собирает проект и публикует `dist`.

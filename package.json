@@ -1,7 +1,7 @@
 {
-  "name": "nova-3d",
+  "name": "nova-3d-e30",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

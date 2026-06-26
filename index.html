@@ -1,43 +1,111 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>NOVA 3D — BMW E30</title>
-<link rel="stylesheet" href="./src/style.css" />
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/",
-    "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/+esm",
-    "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js/+esm"
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="NOVA 3D — кинематографичный WebGL-лендинг BMW E30 на Three.js и GSAP." />
+  <title>NOVA 3D — BMW E30 Cinematic</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="./src/style.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/",
+      "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/+esm",
+      "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js/+esm"
+    }
   }
-}
-</script>
+  </script>
 </head>
 <body>
-<canvas id="webgl"></canvas>
-<div class="hint">↓ скролль</div>
-<main class="overlay">
-  <section class="panel"><div>
-    <p class="kicker">NOVA · 3D</p>
-    <h1>BMW E30.<br><span class="grad">В движении.</span></h1>
-    <p class="sub">Скролль вниз — легенда вращается и оживает в реальном времени на WebGL.</p>
-  </div></section>
-  <section class="panel right"><div>
-    <h2 class="grad">Каждая деталь</h2>
-    <p class="sub">Кинематографичный свет и тонмаппинг подчёркивают геометрию кузова.</p>
-  </div></section>
-  <section class="panel"><div>
-    <h2 class="grad">Плавно</h2>
-    <p class="sub">GSAP ScrollTrigger связывает скролл с камерой и вращением — никаких рывков.</p>
-  </div></section>
-  <section class="panel center"><div>
-    <h2 class="grad">Чистая статика</h2>
-    <p class="sub">Без сборки и бэкенда. Работает прямо на GitHub Pages.</p>
-  </div></section>
-</main>
-<script type="module" src="./src/main.js"></script>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="aurora aurora-a" aria-hidden="true"></div>
+  <div class="aurora aurora-b" aria-hidden="true"></div>
+  <div class="cursor-glow" aria-hidden="true"></div>
+
+  <div class="loader" id="loader" aria-live="polite">
+    <div class="loader__ring"></div>
+    <p>Загружаю E30</p>
+    <span id="loadProgress">0%</span>
+  </div>
+
+  <canvas id="webgl" aria-label="3D сцена BMW E30"></canvas>
+
+  <header class="topbar">
+    <a class="brand" href="#hero" aria-label="NOVA 3D">
+      <span class="brand__dot"></span>
+      NOVA<span>3D</span>
+    </a>
+    <nav class="nav" aria-label="Разделы">
+      <a href="#motion">Motion</a>
+      <a href="#details">Details</a>
+      <a href="#finish">Launch</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="hero panel" id="hero">
+      <div class="hero__meta reveal-line">BMW E30 · WebGL experience</div>
+      <h1 class="hero__title split-lines">
+        Легенда<br />в неоновом<br /><span>движении.</span>
+      </h1>
+      <p class="hero__lead reveal-line">
+        Кинематографичный скролл, агрессивный свет, живая камера и 3D-модель, которая ведёт себя как главный герой сцены.
+      </p>
+      <div class="hero__actions reveal-line">
+        <a class="button" href="#motion">Смотреть сцену</a>
+        <span class="scroll-hint">Scroll</span>
+      </div>
+    </section>
+
+    <section class="panel copy-panel panel--right" id="motion">
+      <p class="eyebrow reveal-line">01 · choreography</p>
+      <h2 class="section-title split-lines">Автомобиль больше не стоит мёртвым грузом.</h2>
+      <p class="section-copy reveal-line">
+        По скроллу E30 разворачивается, камера приближается, свет меняет температуру, а кузов получает плавный floating-motion и реакцию на курсор.
+      </p>
+      <div class="stat-row reveal-line">
+        <div><b>3D</b><span>центрирование модели</span></div>
+        <div><b>GSAP</b><span>scroll timeline</span></div>
+        <div><b>FX</b><span>particles + glow</span></div>
+      </div>
+    </section>
+
+    <section class="panel copy-panel" id="details">
+      <p class="eyebrow reveal-line">02 · visual system</p>
+      <h2 class="section-title split-lines">Текст теперь появляется слоями, а не просто лежит на странице.</h2>
+      <p class="section-copy reveal-line">
+        Заголовки разбиты на строки и символы, блоки входят с маской, фон дышит градиентами, а интерфейс держит премиальный automotive-настрой.
+      </p>
+      <div class="feature-stack reveal-line">
+        <span>Neon rim light</span>
+        <span>Glass panels</span>
+        <span>Responsive layout</span>
+        <span>Model fallback</span>
+      </div>
+    </section>
+
+    <section class="panel showcase-panel">
+      <div class="showcase-card reveal-line">
+        <span class="card-number">E30</span>
+        <h3>Classic body. Digital stage.</h3>
+        <p>Сцена построена так, чтобы машина читалась с первого экрана: контрастный свет, тени, сетка пола и управляемая камера.</p>
+      </div>
+    </section>
+
+    <section class="panel final-panel" id="finish">
+      <p class="eyebrow reveal-line">03 · ready for deploy</p>
+      <h2 class="final-title split-lines">Теперь это похоже на демо, которое не стыдно открыть.</h2>
+      <p class="section-copy reveal-line">
+        Следующий уровень — добавить настоящие хотспоты по деталям автомобиля, звук двигателя и оптимизировать GLB под быстрый первый запуск.
+      </p>
+      <a class="button button--ghost reveal-line" href="https://github.com/Meller2/Notion-test" target="_blank" rel="noreferrer">Открыть GitHub</a>
+    </section>
+  </main>
+
+  <div class="progress" aria-hidden="true"><span></span></div>
+
+  <script type="module" src="./src/main.js"></script>
 </body>
 </html>

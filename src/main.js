@@ -5,77 +5,293 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-// Путь к модели (статика с корня ветки на GitHub Pages)
-const MODEL_URL = './public/models/model.glb'
-
 const canvas = document.querySelector('#webgl')
-const scene = new THREE.Scene()
+const loaderEl = document.querySelector('#loader')
+const progressEl = document.querySelector('#loadProgress')
+const progressBar = document.querySelector('.progress span')
+const cursorGlow = document.querySelector('.cursor-glow')
+
+const MODEL_URL = `${import.meta.env.BASE_URL}models/model.glb`
 const sizes = { width: window.innerWidth, height: window.innerHeight }
+const pointer = new THREE.Vector2(0, 0)
 
-const camera = new THREE.PerspectiveCamera(42, sizes.width / sizes.height, 0.1, 100)
-camera.position.set(0, 0.4, 6)
-scene.add(camera)
-
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true })
-renderer.setSize(sizes.width, sizes.height)
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-renderer.toneMapping = THREE.ACESFilmicToneMapping
-renderer.toneMappingExposure = 1.1
-
-// свет
-const key = new THREE.DirectionalLight(0xffffff, 3.2); key.position.set(4, 5, 4); scene.add(key)
-const rim = new THREE.DirectionalLight(0x7c8cff, 2.4); rim.position.set(-5, 2, -4); scene.add(rim)
-scene.add(new THREE.AmbientLight(0xffffff, 0.45))
-
-const group = new THREE.Group()
-scene.add(group)
-
-function frameModel(obj) {
-  const box = new THREE.Box3().setFromObject(obj)
-  const size = box.getSize(new THREE.Vector3())
-  const center = box.getCenter(new THREE.Vector3())
-  obj.position.sub(center)
-  const maxAxis = Math.max(size.x, size.y, size.z) || 1
-  obj.scale.setScalar(2.6 / maxAxis)
+function splitText() {
+  document.querySelectorAll('.split-lines').forEach((element) => {
+    const html = element.innerHTML
+    const chunks = html.split(/<br\s*\/?>/i)
+    element.innerHTML = chunks.map((chunk) => {
+      const temp = document.createElement('span')
+      temp.innerHTML = chunk.trim()
+      const text = temp.textContent || ''
+      const chars = [...text].map((char) => {
+        if (char === ' ') return '<span class="split-char">&nbsp;</span>'
+        return `<span class="split-char">${char}</span>`
+      }).join('')
+      return `<span class="split-line"><span class="split-word">${chars}</span></span>`
+    }).join('')
+  })
 }
 
-let loaded = null
-const loader = new GLTFLoader()
-loader.load(
+splitText()
+
+const scene = new THREE.Scene()
+scene.fog = new THREE.FogExp2(0x05060f, 0.045)
+
+const camera = new THREE.PerspectiveCamera(38, sizes.width / sizes.height, 0.1, 160)
+camera.position.set(0.2, 1.05, 6.6)
+scene.add(camera)
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' })
+renderer.setSize(sizes.width, sizes.height)
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+renderer.outputColorSpace = THREE.SRGBColorSpace
+renderer.toneMapping = THREE.ACESFilmicToneMapping
+renderer.toneMappingExposure = 1.25
+renderer.shadowMap.enabled = true
+renderer.shadowMap.type = THREE.PCFSoftShadowMap
+
+const carRig = new THREE.Group()
+const carPivot = new THREE.Group()
+carRig.add(carPivot)
+scene.add(carRig)
+
+const hemi = new THREE.HemisphereLight(0xdde8ff, 0x070713, 1.1)
+scene.add(hemi)
+
+const key = new THREE.DirectionalLight(0xffffff, 4.8)
+key.position.set(4.8, 5.2, 4.2)
+key.castShadow = true
+key.shadow.mapSize.set(2048, 2048)
+scene.add(key)
+
+const rim = new THREE.DirectionalLight(0x39dfff, 5.2)
+rim.position.set(-5.5, 2.4, -4.5)
+scene.add(rim)
+
+const magenta = new THREE.PointLight(0xff3d9a, 4.5, 10)
+magenta.position.set(2.4, 1.4, -2.8)
+scene.add(magenta)
+
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(38, 38, 48, 48),
+  new THREE.MeshStandardMaterial({
+    color: 0x080a12,
+    metalness: 0.25,
+    roughness: 0.32,
+    transparent: true,
+    opacity: 0.78,
+  })
+)
+floor.rotation.x = -Math.PI / 2
+floor.position.y = -1.08
+floor.receiveShadow = true
+scene.add(floor)
+
+const grid = new THREE.GridHelper(38, 38, 0x2be7ff, 0x20253f)
+grid.position.y = -1.055
+grid.material.transparent = true
+grid.material.opacity = 0.28
+scene.add(grid)
+
+function createParticles() {
+  const count = 420
+  const positions = new Float32Array(count * 3)
+  for (let i = 0; i < count; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 22
+    positions[i * 3 + 1] = Math.random() * 7 - 1
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 18
+  }
+  const geometry = new THREE.BufferGeometry()
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+  const material = new THREE.PointsMaterial({
+    size: 0.028,
+    color: 0x75ecff,
+    transparent: true,
+    opacity: 0.44,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  })
+  return new THREE.Points(geometry, material)
+}
+const particles = createParticles()
+scene.add(particles)
+
+function makeFallbackCar() {
+  const group = new THREE.Group()
+  const paint = new THREE.MeshStandardMaterial({ color: 0x171b2e, metalness: 0.72, roughness: 0.22 })
+  const glass = new THREE.MeshStandardMaterial({ color: 0x1ee8ff, metalness: 0.1, roughness: 0.04, transparent: true, opacity: 0.45 })
+  const rubber = new THREE.MeshStandardMaterial({ color: 0x050507, roughness: 0.5 })
+  const neon = new THREE.MeshStandardMaterial({ color: 0x2be7ff, emissive: 0x2be7ff, emissiveIntensity: 1.6 })
+
+  const body = new THREE.Mesh(new THREE.BoxGeometry(2.7, 0.42, 1.18), paint)
+  body.position.y = 0.18
+  body.castShadow = true
+  group.add(body)
+
+  const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.35, 0.48, 0.92), glass)
+  cabin.position.set(-0.18, 0.64, 0)
+  cabin.castShadow = true
+  group.add(cabin)
+
+  const hood = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.12, 1.05), paint)
+  hood.position.set(0.82, 0.46, 0)
+  group.add(hood)
+
+  for (const x of [-0.9, 0.9]) {
+    for (const z of [-0.63, 0.63]) {
+      const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.22, 36), rubber)
+      wheel.rotation.z = Math.PI / 2
+      wheel.position.set(x, -0.06, z)
+      wheel.castShadow = true
+      group.add(wheel)
+    }
+  }
+
+  const light = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.12, 0.86), neon)
+  light.position.set(1.39, 0.28, 0)
+  group.add(light)
+
+  return group
+}
+
+function frameModel(object) {
+  const box = new THREE.Box3().setFromObject(object)
+  const size = box.getSize(new THREE.Vector3())
+  const center = box.getCenter(new THREE.Vector3())
+  object.position.sub(center)
+  const maxAxis = Math.max(size.x, size.y, size.z) || 1
+  object.scale.setScalar(3.35 / maxAxis)
+  object.traverse((child) => {
+    if (child.isMesh) {
+      child.castShadow = true
+      child.receiveShadow = true
+      if (child.material) {
+        child.material.envMapIntensity = 1.25
+        child.material.needsUpdate = true
+      }
+    }
+  })
+}
+
+let car = null
+let loaded = false
+const gltfLoader = new GLTFLoader()
+gltfLoader.load(
   MODEL_URL,
-  (gltf) => { loaded = gltf.scene; frameModel(loaded); group.add(loaded) },
-  undefined,
-  (err) => {
-    console.warn('[NOVA] Не удалось загрузить модель, показываю заглушку.', err)
-    const geo = new THREE.TorusKnotGeometry(1, 0.34, 220, 32)
-    const mat = new THREE.MeshStandardMaterial({ color: 0x6366f1, metalness: 0.55, roughness: 0.18 })
-    loaded = new THREE.Mesh(geo, mat)
-    group.add(loaded)
+  (gltf) => {
+    car = gltf.scene
+    frameModel(car)
+    carPivot.add(car)
+    loaded = true
+    hideLoader()
+    gsap.fromTo(carPivot.scale, { x: 0.18, y: 0.18, z: 0.18 }, { x: 1, y: 1, z: 1, duration: 1.35, ease: 'expo.out' })
+    gsap.fromTo(carPivot.rotation, { y: -Math.PI * 0.7 }, { y: -0.22, duration: 1.45, ease: 'power4.out' })
+  },
+  (event) => {
+    const percent = event.total ? Math.round((event.loaded / event.total) * 100) : 72
+    progressEl.textContent = `${Math.min(percent, 99)}%`
+  },
+  (error) => {
+    console.warn('[NOVA] Не удалось загрузить GLB, показываю fallback.', error)
+    car = makeFallbackCar()
+    frameModel(car)
+    carPivot.add(car)
+    loaded = true
+    hideLoader()
   }
 )
 
-// скролл-анимация: вращение + камера
-gsap.to(group.rotation, {
-  y: Math.PI * 3,
-  ease: 'none',
-  scrollTrigger: { trigger: '.overlay', start: 'top top', end: 'bottom bottom', scrub: 1 },
-})
-gsap.to(camera.position, {
-  z: 4, y: -0.6,
-  ease: 'none',
-  scrollTrigger: { trigger: '.overlay', start: 'top top', end: 'bottom bottom', scrub: 1 },
-})
+function hideLoader() {
+  progressEl.textContent = '100%'
+  window.setTimeout(() => loaderEl.classList.add('is-hidden'), 280)
+}
+window.setTimeout(() => {
+  if (!loaded) {
+    car = makeFallbackCar()
+    frameModel(car)
+    carPivot.add(car)
+    loaded = true
+    hideLoader()
+  }
+}, 6500)
 
-// появление текста панелей
-gsap.utils.toArray('.panel > div').forEach((el) => {
-  gsap.from(el, { opacity: 0, y: 40, duration: 1, scrollTrigger: { trigger: el, start: 'top 80%' } })
+const intro = gsap.timeline({ defaults: { ease: 'power4.out' }, delay: 0.15 })
+intro
+  .from('.brand, .nav', { y: -26, opacity: 0, duration: 0.9, stagger: 0.08 })
+  .from('.hero__meta', { y: 28, opacity: 0, duration: 0.8 }, '-=.55')
+  .from('.hero .split-char', { yPercent: 115, rotate: 8, opacity: 0, duration: 0.95, stagger: 0.012 }, '-=.45')
+  .from('.hero__lead, .hero__actions', { y: 34, opacity: 0, duration: 0.9, stagger: 0.12 }, '-=.55')
+
+function setupScroll() {
+  gsap.utils.toArray('.copy-panel, .showcase-panel, .final-panel').forEach((section) => {
+    gsap.from(section.querySelectorAll('.split-char'), {
+      yPercent: 112,
+      opacity: 0,
+      rotate: 5,
+      duration: 0.9,
+      ease: 'power4.out',
+      stagger: 0.008,
+      scrollTrigger: { trigger: section, start: 'top 68%' }
+    })
+    gsap.from(section.querySelectorAll('.reveal-line'), {
+      y: 34,
+      opacity: 0,
+      duration: 0.85,
+      ease: 'power3.out',
+      stagger: 0.08,
+      scrollTrigger: { trigger: section, start: 'top 70%' }
+    })
+  })
+
+  const sceneTl = gsap.timeline({
+    scrollTrigger: {
+      trigger: '.page',
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 1.15,
+      onUpdate: (self) => { progressBar.style.width = `${self.progress * 100}%` }
+    }
+  })
+
+  sceneTl
+    .to(carRig.rotation, { y: Math.PI * 0.55, x: 0.08, ease: 'none' }, 0)
+    .to(carRig.position, { x: -1.1, y: -0.05, z: -0.25, ease: 'none' }, 0)
+    .to(camera.position, { x: -0.85, y: 0.7, z: 5.25, ease: 'none' }, 0)
+    .to(rim, { intensity: 8.5, ease: 'none' }, 0.18)
+    .to(magenta.position, { x: -2.5, y: 1.9, z: 2.1, ease: 'none' }, 0.22)
+    .to(carRig.rotation, { y: Math.PI * 1.25, x: -0.03, ease: 'none' }, 0.42)
+    .to(carRig.position, { x: 1.05, y: -0.08, z: -0.35, ease: 'none' }, 0.42)
+    .to(camera.position, { x: 1.05, y: 1.22, z: 4.45, ease: 'none' }, 0.42)
+    .to(carRig.rotation, { y: Math.PI * 2.05, x: 0, ease: 'none' }, 0.74)
+    .to(carRig.position, { x: 0, y: 0, z: 0.15, ease: 'none' }, 0.74)
+    .to(camera.position, { x: 0, y: 1.45, z: 5.85, ease: 'none' }, 0.74)
+
+  gsap.to('.aurora-a', { x: '22vw', y: '16vh', scrollTrigger: { trigger: '.page', scrub: 1 } })
+  gsap.to('.aurora-b', { x: '-18vw', y: '-20vh', scrollTrigger: { trigger: '.page', scrub: 1 } })
+}
+setupScroll()
+
+window.addEventListener('pointermove', (event) => {
+  pointer.x = (event.clientX / sizes.width - 0.5) * 2
+  pointer.y = -(event.clientY / sizes.height - 0.5) * 2
+  cursorGlow.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0)`
 })
 
 const clock = new THREE.Clock()
 function tick() {
-  const t = clock.getElapsedTime()
-  group.rotation.x = Math.sin(t * 0.3) * 0.08
-  if (loaded) loaded.position.y = Math.sin(t * 0.8) * 0.06
+  const elapsed = clock.getElapsedTime()
+  const parallaxX = pointer.x * 0.18
+  const parallaxY = pointer.y * 0.12
+
+  carRig.rotation.x += (parallaxY - carRig.rotation.x) * 0.025
+  carRig.position.y = Math.sin(elapsed * 0.9) * 0.055
+  carPivot.rotation.z = Math.sin(elapsed * 0.7) * 0.018
+
+  camera.lookAt(parallaxX, 0.18 + parallaxY, 0)
+  particles.rotation.y = elapsed * 0.025
+  particles.position.y = Math.sin(elapsed * 0.35) * 0.12
+  grid.material.opacity = 0.22 + Math.sin(elapsed * 1.4) * 0.055
+
   renderer.render(scene, camera)
   requestAnimationFrame(tick)
 }
@@ -88,4 +304,5 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix()
   renderer.setSize(sizes.width, sizes.height)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+  ScrollTrigger.refresh()
 })
