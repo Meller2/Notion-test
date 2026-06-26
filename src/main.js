@@ -10,6 +10,7 @@ const loaderEl = document.querySelector('#loader')
 const progressEl = document.querySelector('#loadProgress')
 const progressBar = document.querySelector('.progress span')
 const cursorGlow = document.querySelector('.cursor-glow')
+const shotName = document.querySelector('#shotName')
 
 const isGithubPages = window.location.hostname.includes('github.io')
 const viteBase = import.meta.env?.BASE_URL
@@ -24,6 +25,15 @@ const sizes = { width: window.innerWidth, height: window.innerHeight }
 const pointer = new THREE.Vector2(0, 0)
 const isNarrow = () => window.innerWidth < 760
 const isMedium = () => window.innerWidth < 1120
+const cameraTarget = new THREE.Vector3(0, 0.15, 0)
+const shotState = { name: 'Wide hero' }
+
+function setShot(name) {
+  if (!shotName || shotState.name === name) return
+  shotState.name = name
+  shotName.textContent = name
+  gsap.fromTo(shotName, { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.28, ease: 'power2.out' })
+}
 
 function escapeHtml(value) {
   return value
@@ -278,11 +288,12 @@ function setupScroll() {
   })
 
   const sceneTl = gsap.timeline({
+    defaults: { ease: 'power2.inOut' },
     scrollTrigger: {
       trigger: '.page',
       start: 'top top',
       end: 'bottom bottom',
-      scrub: 1.15,
+      scrub: 0.72,
       onUpdate: (self) => { progressBar.style.width = `${self.progress * 100}%` }
     }
   })
@@ -293,43 +304,65 @@ function setupScroll() {
   const depth = isNarrow() ? -0.7 : -0.92
 
   sceneTl
-    // Hero: car is large and dominant on the right, text is left.
-    .to(carRig.rotation, { y: Math.PI * 0.36, x: 0.03, ease: 'none' }, 0)
-    .to(carRig.position, { x: heroSide, y: -0.05, z: depth, ease: 'none' }, 0)
-    .to(carPivot.scale, { x: baseScale, y: baseScale, z: baseScale, ease: 'none' }, 0)
-    .to(camera.position, { x: -0.52, y: 0.86, z: 6.55, ease: 'none' }, 0)
+    // Wide establishing shot.
+    .call(() => setShot('Wide hero'), [], 0)
+    .to(carRig.rotation, { y: Math.PI * 0.34, x: 0.02, duration: 0.08 }, 0)
+    .to(carRig.position, { x: heroSide, y: -0.05, z: depth, duration: 0.08 }, 0)
+    .to(carPivot.scale, { x: baseScale, y: baseScale, z: baseScale, duration: 0.08 }, 0)
+    .to(camera.position, { x: -0.52, y: 0.86, z: 6.55, duration: 0.08 }, 0)
+    .to(cameraTarget, { x: 0.72, y: 0.12, z: -0.15, duration: 0.08 }, 0)
 
-    // Move early, but keep the car big — composition solves the overlap, not shrinking.
-    .to(carRig.rotation, { y: Math.PI * 0.86, x: 0.02, ease: 'none' }, 0.08)
-    .to(carRig.position, { x: -side, y: -0.08, z: depth - 0.18, ease: 'none' }, 0.08)
-    .to(camera.position, { x: 0.62, y: 0.96, z: 6.4, ease: 'none' }, 0.08)
-    .to(rim, { intensity: 6.5, ease: 'none' }, 0.08)
+    // Quick punch-in to the rim. Fast but still animated.
+    .call(() => setShot('Rim punch-in'), [], 0.105)
+    .to(carRig.position, { x: -0.22, y: -0.04, z: -0.62, duration: 0.05, ease: 'power3.inOut' }, 0.105)
+    .to(carRig.rotation, { y: Math.PI * 0.82, x: 0.02, duration: 0.05, ease: 'power3.inOut' }, 0.105)
+    .to(camera.position, { x: -1.15, y: -0.18, z: 2.55, duration: 0.05, ease: 'power3.inOut' }, 0.105)
+    .to(cameraTarget, { x: -0.62, y: -0.42, z: -0.08, duration: 0.05, ease: 'power3.inOut' }, 0.105)
+    .to(rim, { intensity: 8.2, duration: 0.05 }, 0.105)
 
-    // Motion panel hold: car is big left, text panel is right.
-    .to(carRig.rotation, { y: Math.PI * 1.04, x: 0.02, ease: 'none' }, 0.22)
-    .to(carRig.position, { x: -side, y: -0.08, z: depth - 0.2, ease: 'none' }, 0.22)
-    .to(camera.position, { x: 0.62, y: 0.96, z: 6.4, ease: 'none' }, 0.22)
+    // Snap to headlight/front detail.
+    .call(() => setShot('Headlight cut'), [], 0.18)
+    .to(carRig.position, { x: 0.28, y: -0.06, z: -0.68, duration: 0.055, ease: 'power3.inOut' }, 0.18)
+    .to(carRig.rotation, { y: Math.PI * 1.18, x: -0.015, duration: 0.055, ease: 'power3.inOut' }, 0.18)
+    .to(camera.position, { x: 1.22, y: 0.22, z: 2.35, duration: 0.055, ease: 'power3.inOut' }, 0.18)
+    .to(cameraTarget, { x: 0.82, y: 0.02, z: -0.18, duration: 0.055, ease: 'power3.inOut' }, 0.18)
+    .to(accent, { intensity: 5.2, duration: 0.055 }, 0.18)
 
-    // Pre-shift for Craft: car moves big right before left text enters.
-    .to(carRig.rotation, { y: Math.PI * 1.47, x: -0.02, ease: 'none' }, 0.34)
-    .to(carRig.position, { x: side, y: -0.08, z: depth - 0.22, ease: 'none' }, 0.34)
-    .to(camera.position, { x: -0.62, y: 1.02, z: 6.28, ease: 'none' }, 0.34)
-    .to(accent.position, { x: -2.5, y: 1.9, z: 2.1, ease: 'none' }, 0.34)
+    // Pull out left before the right text block dominates.
+    .call(() => setShot('Side sweep'), [], 0.265)
+    .to(carRig.rotation, { y: Math.PI * 1.02, x: 0.02, duration: 0.11, ease: 'power2.inOut' }, 0.265)
+    .to(carRig.position, { x: -side, y: -0.08, z: depth - 0.2, duration: 0.11, ease: 'power2.inOut' }, 0.265)
+    .to(camera.position, { x: 0.62, y: 0.96, z: 6.4, duration: 0.11, ease: 'power2.inOut' }, 0.265)
+    .to(cameraTarget, { x: -1.05, y: 0.1, z: -0.12, duration: 0.11, ease: 'power2.inOut' }, 0.265)
 
-    // Craft panel hold.
-    .to(carRig.rotation, { y: Math.PI * 1.68, x: -0.02, ease: 'none' }, 0.48)
-    .to(carRig.position, { x: side, y: -0.08, z: depth - 0.22, ease: 'none' }, 0.48)
-    .to(camera.position, { x: -0.62, y: 1.02, z: 6.28, ease: 'none' }, 0.48)
+    // Craft panel: car travels to the opposite side, still large.
+    .call(() => setShot('Body pass'), [], 0.39)
+    .to(carRig.rotation, { y: Math.PI * 1.6, x: -0.02, duration: 0.12, ease: 'power2.inOut' }, 0.39)
+    .to(carRig.position, { x: side, y: -0.08, z: depth - 0.22, duration: 0.12, ease: 'power2.inOut' }, 0.39)
+    .to(camera.position, { x: -0.62, y: 1.02, z: 6.28, duration: 0.12, ease: 'power2.inOut' }, 0.39)
+    .to(cameraTarget, { x: 1.08, y: 0.08, z: -0.1, duration: 0.12, ease: 'power2.inOut' }, 0.39)
+    .to(accent.position, { x: -2.5, y: 1.9, z: 2.1, duration: 0.12 }, 0.39)
 
-    // Showcase: no tiny car. The card becomes secondary; car remains a hero object.
-    .to(carRig.rotation, { y: Math.PI * 2.02, x: 0, ease: 'none' }, 0.62)
-    .to(carRig.position, { x: 2.25, y: -0.1, z: depth - 0.12, ease: 'none' }, 0.62)
-    .to(camera.position, { x: -0.48, y: 1.18, z: 6.15, ease: 'none' }, 0.62)
+    // Another fast macro detail near the rear wheel before showcase.
+    .call(() => setShot('Rear wheel flash'), [], 0.56)
+    .to(carRig.position, { x: 0.14, y: -0.06, z: -0.55, duration: 0.055, ease: 'power3.inOut' }, 0.56)
+    .to(carRig.rotation, { y: Math.PI * 2.02, x: 0, duration: 0.055, ease: 'power3.inOut' }, 0.56)
+    .to(camera.position, { x: -0.88, y: -0.12, z: 2.45, duration: 0.055, ease: 'power3.inOut' }, 0.56)
+    .to(cameraTarget, { x: -0.52, y: -0.38, z: -0.2, duration: 0.055, ease: 'power3.inOut' }, 0.56)
 
-    // Final: car still large on the right, content occupies left column.
-    .to(carRig.rotation, { y: Math.PI * 2.32, x: 0, ease: 'none' }, 0.82)
-    .to(carRig.position, { x: 2.35, y: -0.16, z: depth - 0.08, ease: 'none' }, 0.82)
-    .to(camera.position, { x: -0.46, y: 1.24, z: 6.35, ease: 'none' }, 0.82)
+    // Pull back to a confident hero composition.
+    .call(() => setShot('Hero pullback'), [], 0.66)
+    .to(carRig.rotation, { y: Math.PI * 2.06, x: 0, duration: 0.12, ease: 'power2.inOut' }, 0.66)
+    .to(carRig.position, { x: 2.25, y: -0.1, z: depth - 0.12, duration: 0.12, ease: 'power2.inOut' }, 0.66)
+    .to(camera.position, { x: -0.48, y: 1.18, z: 6.15, duration: 0.12, ease: 'power2.inOut' }, 0.66)
+    .to(cameraTarget, { x: 1.0, y: 0.12, z: -0.16, duration: 0.12, ease: 'power2.inOut' }, 0.66)
+
+    // Final wide shot.
+    .call(() => setShot('Final wide'), [], 0.82)
+    .to(carRig.rotation, { y: Math.PI * 2.32, x: 0, duration: 0.16, ease: 'power2.inOut' }, 0.82)
+    .to(carRig.position, { x: 2.35, y: -0.16, z: depth - 0.08, duration: 0.16, ease: 'power2.inOut' }, 0.82)
+    .to(camera.position, { x: -0.46, y: 1.24, z: 6.35, duration: 0.16, ease: 'power2.inOut' }, 0.82)
+    .to(cameraTarget, { x: 1.08, y: 0.12, z: -0.12, duration: 0.16, ease: 'power2.inOut' }, 0.82)
 
   gsap.to('.ambient-a', { x: '18vw', y: '12vh', scrollTrigger: { trigger: '.page', scrub: 1 } })
   gsap.to('.ambient-b', { x: '-14vw', y: '-18vh', scrollTrigger: { trigger: '.page', scrub: 1 } })
@@ -352,7 +385,7 @@ function tick() {
   carRig.position.y += ((Math.sin(elapsed * 0.78) * 0.035) - carRig.position.y) * 0.02
   carPivot.rotation.z = Math.sin(elapsed * 0.62) * 0.012
 
-  camera.lookAt(parallaxX, 0.18 + parallaxY, 0)
+  camera.lookAt(cameraTarget.x + parallaxX, cameraTarget.y + parallaxY, cameraTarget.z)
   particles.rotation.y = elapsed * 0.018
   particles.position.y = Math.sin(elapsed * 0.3) * 0.09
   grid.material.opacity = 0.15 + Math.sin(elapsed * 1.1) * 0.035

@@ -116,7 +116,7 @@ a { color: inherit; text-decoration: none; }
   padding: clamp(18px, 3vw, 34px) clamp(18px, 5vw, 72px);
   pointer-events: none;
 }
-.brand, .nav {
+.brand, .nav, .shot-hud {
   pointer-events: auto;
   border: 1px solid var(--line);
   background: rgba(7,7,6,.52);
@@ -156,6 +156,32 @@ a { color: inherit; text-decoration: none; }
   transition: color .25s ease, background .25s ease;
 }
 .nav a:hover { color: var(--fg); background: rgba(241,234,220,.08); }
+
+.shot-hud {
+  position: fixed;
+  right: clamp(18px, 5vw, 72px);
+  bottom: 38px;
+  z-index: 8;
+  min-width: 172px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  pointer-events: none;
+}
+.shot-hud__kicker {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--brass-soft);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+.shot-hud strong {
+  display: block;
+  color: var(--bone);
+  font-size: 15px;
+  letter-spacing: -.02em;
+}
 
 .page { position: relative; z-index: 3; }
 .panel {
@@ -339,6 +365,7 @@ a { color: inherit; text-decoration: none; }
 
 @media (max-width: 760px) {
   .nav { display: none; }
+  .shot-hud { display: none; }
   .topbar { padding: 16px; }
   .panel, .hero {
     width: 100%;
